@@ -1,23 +1,34 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { FlatList, StyleSheet, Text, View } from 'react-native';
+import ExpenseItem from '../components/ExpenseItem';
 
 /**
  * Pantalla de Listado de Gastos (ExpensesScreen)
  * Corresponde a: User Story #5 (#main-s1-us5)
  * Asignado a: Manuel
- *
- * Requerimientos US #5:
- * - Mostrar al menos:
- *   - Supermercado ($25000)
- *   - Combustible ($18000)
- *   - Internet ($32000)
- * - Ordenados como lista, mostrando descripción y monto de cada gasto.
  */
+const EXPENSES = [
+  { id: '1', description: 'Supermercado', amount: 25000, category: 'Alimentos' },
+  { id: '2', description: 'Combustible', amount: 18000, category: 'Transporte' },
+  { id: '3', description: 'Internet', amount: 32000, category: 'Servicios' },
+];
+
 export default function ExpensesScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Mis Gastos</Text>
-      <Text style={styles.subtitle}>Listado de gastos (Pendiente US #5 - Manuel)</Text>
+      <FlatList
+        data={EXPENSES}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <ExpenseItem
+            description={item.description}
+            amount={item.amount}
+            category={item.category}
+          />
+        )}
+        contentContainerStyle={styles.list}
+      />
     </View>
   );
 }
@@ -25,19 +36,17 @@ export default function ExpensesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
+    backgroundColor: '#f5f5f5',
+    paddingTop: 20,
   },
   title: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 8,
+    marginHorizontal: 16,
+    marginBottom: 12,
   },
-  subtitle: {
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
+  list: {
+    paddingHorizontal: 16,
+    paddingBottom: 20,
   },
 });
