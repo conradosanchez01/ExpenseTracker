@@ -20,7 +20,7 @@ Aplicación móvil para el registro y control de gastos personales desarrollada 
 
 1. **Clonar el repositorio:**
    ```bash
-   git clone <URL_DEL_REPOSITORIO_GITHUB>
+   git clone https://github.com/conradosanchez01/ExpenseTracker.git
    cd ExpenseTracker
    ```
 
