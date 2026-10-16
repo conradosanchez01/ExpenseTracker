@@ -1,16 +1,27 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, Switch, Text, View } from 'react-native';
 
-/**
- * Pantalla de Configuración (SettingsScreen)
- * Corresponde a: User Story #2 (#rn-s1-us2) y User Story #6 (#rn-s1-us6)
- * Asignado a: Jerónimo
- */
 export default function SettingsScreen() {
+  const [notifications, setNotifications] = useState(true);
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Configuración</Text>
-      <Text style={styles.subtitle}>Ajustes de la aplicación (Pendiente US #6 - Jerónimo)</Text>
+
+      <View style={styles.row}>
+        <Text style={styles.rowText}>Notificaciones</Text>
+        <Switch value={notifications} onValueChange={setNotifications} />
+      </View>
+
+      <View style={styles.row}>
+        <Text style={styles.rowText}>Moneda</Text>
+        <Text style={styles.rowValue}>ARS ($)</Text>
+      </View>
+
+      <View style={styles.row}>
+        <Text style={styles.rowText}>Versión</Text>
+        <Text style={styles.rowValue}>1.0.0</Text>
+      </View>
     </View>
   );
 }
@@ -18,19 +29,28 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
+    backgroundColor: '#f5f5f5',
+    padding: 16,
   },
   title: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 8,
+    marginBottom: 16,
   },
-  subtitle: {
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    padding: 16,
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  rowText: {
     fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
+  },
+  rowValue: {
+    fontSize: 16,
+    color: '#888',
   },
 });

@@ -1,16 +1,24 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-/**
- * Pantalla de Detalle de Gasto (ExpenseDetailScreen)
- * Corresponde a: User Story #2 (#rn-s1-us2) y User Story #6 (#rn-s1-us6)
- * Asignado a: Jerónimo
- */
-export default function ExpenseDetailScreen() {
+const formatAmount = (value) =>
+  '$' + String(value || 0).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+export default function ExpenseDetailScreen({ route }) {
+  const expense = route?.params?.expense || {};
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Detalle del Gasto</Text>
-      <Text style={styles.subtitle}>Vista de detalle (Pendiente US #6 - Jerónimo)</Text>
+      <View style={styles.card}>
+        <Text style={styles.label}>Descripción</Text>
+        <Text style={styles.value}>{expense.description || 'Sin descripción'}</Text>
+
+        <Text style={styles.label}>Monto</Text>
+        <Text style={[styles.value, styles.amount]}>{formatAmount(expense.amount)}</Text>
+
+        <Text style={styles.label}>Categoría</Text>
+        <Text style={styles.value}>{expense.category || 'Sin categoría'}</Text>
+      </View>
     </View>
   );
 }
@@ -18,19 +26,30 @@ export default function ExpenseDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#f5f5f5',
+    padding: 16,
+  },
+  card: {
     backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderRadius: 10,
     padding: 20,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
   },
-  title: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 8,
+  label: {
+    fontSize: 13,
+    color: '#888',
+    marginTop: 12,
   },
-  subtitle: {
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
+  value: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginTop: 2,
+  },
+  amount: {
+    color: '#c0392b',
   },
 });
