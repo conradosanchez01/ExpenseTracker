@@ -1,6 +1,17 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 
+/**
+ * Pantalla de Bienvenida (HomeScreen)
+ * Corresponde a: User Story #3 (#main-s1-us3)
+ * Asignado a: Conrado
+ *
+ * Requerimientos cumplidos US #3:
+ * - Nombre de la aplicación visible (ExpenseTracker).
+ * - Mensaje de bienvenida destacado.
+ * - Breve descripción de la funcionalidad de registro de gastos.
+ * - Utilización de componentes Text, View, StyleSheet y StatusBar.
+ */
 const HomeScreen = () => {
     return (
         <View style={styles.mainContainer}>
