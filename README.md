@@ -67,4 +67,10 @@ ExpenseTracker/
 
 ## 📸 Capturas de Pantalla en Expo Go
 
-*(Aquí se adjuntarán las capturas de pantalla de la aplicación funcionando en Expo Go al finalizar la integración del Sprint 1).*
+| 1. Bienvenida (`HomeScreen`) | 2. Listado (`ExpensesScreen`) | 3. Nuevo Gasto (`NewExpenseModal`) |
+| :---: | :---: | :---: |
+| <img src="./src/assets/screenshots/01-inicio.jpeg" width="240" alt="Pantalla de Bienvenida" /> | <img src="./src/assets/screenshots/02-listado-gastos.jpeg" width="240" alt="Listado de Gastos" /> | <img src="./src/assets/screenshots/03-nuevo-gasto-modal.jpeg" width="240" alt="Formulario Nuevo Gasto" /> |
+
+| 4. Detalle de Gasto (`ExpenseDetailScreen`) | 5. Configuración (`SettingsScreen`) |
+| :---: | :---: |
+| <img src="./src/assets/screenshots/04-detalle-gasto.jpeg" width="240" alt="Detalle de Gasto" /> | <img src="./src/assets/screenshots/05-ajustes.jpeg" width="240" alt="Configuración" /> |
