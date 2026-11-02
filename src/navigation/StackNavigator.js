@@ -28,7 +28,7 @@ export default function StackNavigator() {
       <Stack.Screen
         name="NewExpenseModal"
         component={NewExpenseModal}
-        options={{ presentation: 'modal', title: 'Nuevo Gasto' }}
+    options={{ presentation: 'transparentModal', headerShown: false }}
       />
     </Stack.Navigator>
   );

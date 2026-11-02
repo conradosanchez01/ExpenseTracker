@@ -1,5 +1,5 @@
 import React from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import ExpenseItem from '../components/ExpenseItem';
 
 /**
@@ -13,10 +13,19 @@ const EXPENSES = [
   { id: '3', description: 'Internet', amount: 32000, category: 'Servicios' },
 ];
 
-export default function ExpensesScreen() {
+export default function ExpensesScreen({ navigation }) {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Mis Gastos</Text>
+      <View style={styles.headerRow}>
+        <Text style={styles.title}>Mis Gastos</Text>
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={() => navigation.navigate('NewExpenseModal')}
+        >
+          <Text style={styles.addButtonText}>+ Nuevo</Text>
+        </TouchableOpacity>
+      </View>
+
       <FlatList
         data={EXPENSES}
         keyExtractor={(item) => item.id}
@@ -25,6 +34,7 @@ export default function ExpensesScreen() {
             description={item.description}
             amount={item.amount}
             category={item.category}
+            onPress={() => navigation.navigate('ExpenseDetail', { expense: item })}
           />
         )}
         contentContainerStyle={styles.list}
@@ -39,11 +49,27 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
     paddingTop: 20,
   },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginHorizontal: 16,
+    marginBottom: 12,
+  },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginHorizontal: 16,
-    marginBottom: 12,
+  },
+  addButton: {
+    backgroundColor: '#10B981',
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 8,
+  },
+  addButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 15,
   },
   list: {
     paddingHorizontal: 16,

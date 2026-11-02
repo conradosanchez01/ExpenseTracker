@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 /**
  * Componente reutilizable para mostrar un ítem de gasto en el listado.
@@ -9,15 +9,15 @@ import { StyleSheet, Text, View } from 'react-native';
 const formatAmount = (value) =>
   '$' + String(value || 0).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 
-export default function ExpenseItem({ description, amount, category }) {
+export default function ExpenseItem({ description, amount, category, onPress }) {
   return (
-    <View style={styles.container}>
+    <TouchableOpacity style={styles.container} onPress={onPress} activeOpacity={0.7}>
       <View style={styles.info}>
         <Text style={styles.description}>{description || 'Gasto'}</Text>
         {category ? <Text style={styles.category}>{category}</Text> : null}
       </View>
       <Text style={styles.amount}>{formatAmount(amount)}</Text>
-    </View>
+    </TouchableOpacity>
   );
 }
 
