@@ -11,6 +11,10 @@ const EXPENSES = [
   { id: '1', description: 'Supermercado', amount: 25000, category: 'Alimentos' },
   { id: '2', description: 'Combustible', amount: 18000, category: 'Transporte' },
   { id: '3', description: 'Internet', amount: 32000, category: 'Servicios' },
+  { id: '4', description: 'Gimnasio', amount: 15000, category: 'Salud' },
+  { id: '5', description: 'Farmacia', amount: 8500, category: 'Salud' },
+  { id: '6', description: 'Cena con amigos', amount: 22000, category: 'Ocio' },
+  { id: '7', description: 'Electricidad', amount: 19500, category: 'Servicios' },
 ];
 
 export default function ExpensesScreen({ navigation }) {
