@@ -2,14 +2,21 @@ import React from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import ExpenseItem from '../components/ExpenseItem';
 import { useExpenses } from '../context/ExpensesContext';
+import { formatAmount } from '../data/categories';
 
 /**
  * Pantalla de Listado de Gastos (ExpensesScreen)
- * Corresponde a: User Story #5 (#main-s1-us5)
- * Asignado a: Manuel
+ * Corresponde a: User Story #5 (#main-s1-us5) y User Story #2 Sprint 3 (#main-s3-us2)
+ * Asignado a: Manuel / Benjamín (resumen real y estado vacío)
  */
 export default function ExpensesScreen({ navigation }) {
   const { expenses } = useExpenses();
+
+  const totalAmount = expenses.reduce(
+    (acc, item) => acc + Number(item.amount || 0),
+    0
+  );
+  const totalMovements = expenses.length;
 
   return (
     <View style={styles.container}>
@@ -23,6 +30,19 @@ export default function ExpensesScreen({ navigation }) {
         </TouchableOpacity>
       </View>
 
+      <View style={styles.summaryRow}>
+        <View style={styles.summaryCard}>
+          <Text style={styles.summaryLabel}>Total registrado</Text>
+          <Text style={[styles.summaryValue, styles.summaryHighlight]}>
+            {formatAmount(totalAmount)}
+          </Text>
+        </View>
+        <View style={styles.summaryCard}>
+          <Text style={styles.summaryLabel}>Movimientos</Text>
+          <Text style={styles.summaryValue}>{totalMovements}</Text>
+        </View>
+      </View>
+
       <FlatList
         data={expenses}
         keyExtractor={(item) => item.id}
@@ -34,6 +54,14 @@ export default function ExpensesScreen({ navigation }) {
             onPress={() => navigation.navigate('ExpenseDetail', { id: item.id })}
           />
         )}
+        ListEmptyComponent={
+          <View style={styles.emptyCard}>
+            <Text style={styles.emptyTitle}>Todavía no registraste gastos</Text>
+            <Text style={styles.emptySubtitle}>
+              Tocá "+ Nuevo" para registrar tu primer movimiento.
+            </Text>
+          </View>
+        }
         contentContainerStyle={styles.list}
       />
     </View>
@@ -56,6 +84,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
+    color: '#1F2937',
   },
   addButton: {
     backgroundColor: '#10B981',
@@ -68,8 +97,63 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 15,
   },
+  summaryRow: {
+    flexDirection: 'row',
+    gap: 12,
+    marginHorizontal: 16,
+    marginBottom: 14,
+  },
+  summaryCard: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    alignItems: 'center',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowRadius: 3,
+    shadowOffset: { width: 0, height: 1 },
+  },
+  summaryLabel: {
+    fontSize: 12,
+    color: '#6B7280',
+    marginBottom: 4,
+  },
+  summaryValue: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1F2937',
+  },
+  summaryHighlight: {
+    color: '#10B981',
+  },
   list: {
     paddingHorizontal: 16,
     paddingBottom: 20,
+  },
+  emptyCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: '#D1D5DB',
+    paddingVertical: 32,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  emptyTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1F2937',
+    marginBottom: 6,
+    textAlign: 'center',
+  },
+  emptySubtitle: {
+    fontSize: 14,
+    color: '#6B7280',
+    textAlign: 'center',
   },
 });

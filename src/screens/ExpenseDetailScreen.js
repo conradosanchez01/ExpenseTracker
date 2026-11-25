@@ -1,12 +1,17 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useExpenses } from '../context/ExpensesContext';
 import { formatAmount, formatDate, getCategoryMeta } from '../data/categories';
 
-export default function ExpenseDetailScreen({ route }) {
-  const { getExpenseById } = useExpenses();
+/**
+ * Pantalla de Detalle de Gasto (ExpenseDetailScreen.js)
+ * Corresponde a: User Story #6 (#rn-s1-us6) y User Story #2 Sprint 3 (#main-s3-us2)
+ * Asignado a: Manuel / Benjamín (búsqueda por { id } en Context y eliminación con confirmación)
+ */
+export default function ExpenseDetailScreen({ route, navigation }) {
+  const { getExpenseById, removeExpense } = useExpenses();
   const expenseId = route?.params?.id;
-  const expense = expenseId ? getExpenseById(expenseId) : route?.params?.expense;
+  const expense = expenseId ? getExpenseById(expenseId) : undefined;
 
   if (!expense) {
     return (
@@ -16,6 +21,12 @@ export default function ExpenseDetailScreen({ route }) {
           <Text style={styles.notFoundText}>
             No se encontró el gasto solicitado o fue eliminado.
           </Text>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
+          >
+            <Text style={styles.backButtonText}>Volver al listado</Text>
+          </TouchableOpacity>
         </View>
       </View>
     );
@@ -23,6 +34,27 @@ export default function ExpenseDetailScreen({ route }) {
 
   const categoryMeta = getCategoryMeta(expense.category);
   const displayTitle = expense.title || expense.description || 'Sin título';
+
+  const handleDelete = () => {
+    Alert.alert(
+      'Eliminar gasto',
+      `¿Estás seguro de que querés eliminar "${displayTitle}" (${formatAmount(expense.amount)})?`,
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: () => {
+            removeExpense(expense.id);
+            navigation.goBack();
+          },
+        },
+      ]
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -46,6 +78,14 @@ export default function ExpenseDetailScreen({ route }) {
         <Text style={styles.label}>Notas</Text>
         <Text style={styles.value}>{expense.notes || 'Sin notas'}</Text>
       </View>
+
+      <TouchableOpacity
+        style={styles.deleteButton}
+        onPress={handleDelete}
+        activeOpacity={0.85}
+      >
+        <Text style={styles.deleteButtonText}>Eliminar gasto</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -100,5 +140,34 @@ const styles = StyleSheet.create({
   notFoundText: {
     fontSize: 15,
     color: '#6B7280',
+    marginBottom: 16,
+  },
+  backButton: {
+    backgroundColor: '#E5E7EB',
+    borderRadius: 10,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  backButtonText: {
+    color: '#1F2937',
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  deleteButton: {
+    marginTop: 16,
+    backgroundColor: '#c0392b',
+    borderRadius: 10,
+    paddingVertical: 15,
+    alignItems: 'center',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+  },
+  deleteButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });

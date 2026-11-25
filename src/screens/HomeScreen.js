@@ -1,20 +1,20 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useExpenses } from '../context/ExpensesContext';
 import { formatAmount } from '../data/categories';
 
 /**
  * Pantalla de Bienvenida (HomeScreen)
- * Corresponde a: User Story #3 (#main-s1-us3)
- * Asignado a: Conrado
+ * Corresponde a: User Story #3 (#main-s1-us3) y User Story #2 Sprint 3 (#main-s3-us2)
+ * Asignado a: Conrado / Benjamín (resumen real y estado vacío)
  *
- * Requerimientos cumplidos US #3:
+ * Requerimientos cumplidos:
  * - Nombre de la aplicación visible (ExpenseTracker).
- * - Mensaje de bienvenida destacado.
- * - Breve descripción de la funcionalidad de registro de gastos.
- * - Utilización de componentes Text, View, StyleSheet y StatusBar.
+ * - Mensaje de bienvenida destacado y descripción.
+ * - Resumen real (total + movimientos) desde ExpensesContext.
+ * - Estado vacío ("Todavía no registraste gastos") cuando no hay movimientos.
  */
-const HomeScreen = () => {
+const HomeScreen = ({ navigation }) => {
     const { expenses } = useExpenses();
     const totalAmount = expenses.reduce(
         (acc, item) => acc + Number(item.amount || 0),
@@ -52,6 +52,31 @@ const HomeScreen = () => {
                 </View>
             </View>
 
+            {totalMovements === 0 ? (
+                <View style={styles.emptyCard}>
+                    <Text style={styles.emptyText}>Todavía no registraste gastos</Text>
+                </View>
+            ) : null}
+
+            {navigation ? (
+                <View style={styles.actionsContainer}>
+                    <TouchableOpacity
+                        style={styles.primaryButton}
+                        onPress={() => navigation.navigate('NewExpenseModal')}
+                        activeOpacity={0.85}
+                    >
+                        <Text style={styles.primaryButtonText}>Registrar Nuevo Gasto</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.secondaryButton}
+                        onPress={() => navigation.navigate('Gastos')}
+                        activeOpacity={0.85}
+                    >
+                        <Text style={styles.secondaryButtonText}>Ver Listado Completo</Text>
+                    </TouchableOpacity>
+                </View>
+            ) : null}
+
             <StatusBar style="dark" />
         </View>
     );
@@ -68,7 +93,7 @@ const styles = StyleSheet.create({
         padding: 20,
     },
     headerContainer: {
-        marginBottom: 40, 
+        marginBottom: 24, 
     },
     title: {
         fontSize: 36,
@@ -79,7 +104,7 @@ const styles = StyleSheet.create({
     card: {
         backgroundColor: '#FFFFFF',
         width: '100%',
-        paddingVertical: 35,
+        paddingVertical: 28,
         paddingHorizontal: 25,
         borderRadius: 20, 
         alignItems: 'center',
@@ -96,7 +121,7 @@ const styles = StyleSheet.create({
         fontSize: 22,
         fontWeight: '600',
         color: '#1F2937', 
-        marginBottom: 15,
+        marginBottom: 12,
         textAlign: 'center',
     },
     description: {
@@ -139,5 +164,52 @@ const styles = StyleSheet.create({
     },
     summaryHighlight: {
         color: '#10B981',
+    },
+    emptyCard: {
+        width: '100%',
+        marginTop: 12,
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        borderRadius: 14,
+        backgroundColor: '#FFFFFF',
+        borderWidth: 1,
+        borderStyle: 'dashed',
+        borderColor: '#D1D5DB',
+        alignItems: 'center',
+    },
+    emptyText: {
+        fontSize: 15,
+        fontWeight: '500',
+        color: '#4B5563',
+        textAlign: 'center',
+    },
+    actionsContainer: {
+        width: '100%',
+        marginTop: 16,
+        gap: 10,
+    },
+    primaryButton: {
+        backgroundColor: '#10B981',
+        borderRadius: 12,
+        paddingVertical: 14,
+        alignItems: 'center',
+    },
+    primaryButtonText: {
+        color: '#FFFFFF',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    secondaryButton: {
+        backgroundColor: '#FFFFFF',
+        borderWidth: 2,
+        borderColor: '#10B981',
+        borderRadius: 12,
+        paddingVertical: 12,
+        alignItems: 'center',
+    },
+    secondaryButtonText: {
+        color: '#10B981',
+        fontSize: 16,
+        fontWeight: 'bold',
     },
 });
