@@ -1,20 +1,25 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { formatAmount, getCategoryMeta } from '../data/categories';
 
 /**
  * Componente reutilizable para mostrar un ítem de gasto en el listado.
  * Corresponde a: User Story #5 (#main-s1-us5) / User Story #6 (#rn-s1-us6)
  * Asignado a: Manuel
  */
-const formatAmount = (value) =>
-  '$' + String(value || 0).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+export default function ExpenseItem({ title, description, amount, category, onPress }) {
+  const displayTitle = title || description || 'Gasto';
+  const categoryMeta = getCategoryMeta(category);
 
-export default function ExpenseItem({ description, amount, category, onPress }) {
   return (
     <TouchableOpacity style={styles.container} onPress={onPress} activeOpacity={0.7}>
       <View style={styles.info}>
-        <Text style={styles.description}>{description || 'Gasto'}</Text>
-        {category ? <Text style={styles.category}>{category}</Text> : null}
+        <Text style={styles.description}>{displayTitle}</Text>
+        {category ? (
+          <View style={[styles.categoryBadge, { backgroundColor: categoryMeta.backgroundColor }]}>
+            <Text style={[styles.category, { color: categoryMeta.color }]}>{category}</Text>
+          </View>
+        ) : null}
       </View>
       <Text style={styles.amount}>{formatAmount(amount)}</Text>
     </TouchableOpacity>
@@ -38,15 +43,23 @@ const styles = StyleSheet.create({
   },
   info: {
     flexShrink: 1,
+    paddingRight: 12,
   },
   description: {
     fontSize: 16,
     fontWeight: '600',
+    color: '#1F2937',
+  },
+  categoryBadge: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 999,
+    marginTop: 6,
   },
   category: {
-    fontSize: 13,
-    color: '#888',
-    marginTop: 2,
+    fontSize: 12,
+    fontWeight: '600',
   },
   amount: {
     fontSize: 16,
