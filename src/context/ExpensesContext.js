@@ -1,91 +1,120 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  onSnapshot,
+  orderBy,
+  query,
+  serverTimestamp,
+} from 'firebase/firestore';
+import { db } from '../services/firebase';
 
 /**
  * Contexto global de gastos (ExpensesContext.js)
- * Corresponde a: User Story #1 (#per-s3-us1) — Sprint 3
- * Asignado a: Conrado
+ * Corresponde a: User Story #1 (#per-s3-us1) y User Story #5 (#per-s3-us5-rn) — Sprint 3
+ * Asignado a: Conrado / Manuel / Jerónimo
  *
- * Centraliza el estado y las operaciones sobre los gastos para que todas las
- * pantallas accedan únicamente a través de useExpenses(). En esta primera
- * etapa (US #1) vive en memoria; en US #3 (AsyncStorage) y US #5 (Firestore)
- * solo se cambia el origen de persistencia dentro de este Provider.
+ * Fuente de verdad: colección "expenses" de Cloud Firestore (la misma que usa
+ * la PWA, por eso las dos apps se sincronizan en tiempo real).
+ * - onSnapshot (orderBy createdAt desc): lista en vivo.
+ * - addDoc / deleteDoc NO se esperan (await): Firestore actualiza la lista local
+ *   al instante y sincroniza con el servidor cuando hay conexión. Si se
+ *   esperara addDoc, offline el modal quedaría abierto indefinidamente porque
+ *   la promesa solo se resuelve cuando el servidor confirma.
+ * La API pública (expenses, isLoaded, addExpense, removeExpense,
+ * getExpenseById) no cambió: las pantallas no se modifican.
  *
- * US #3 (#rn-s3-us3) — Manuel / Jerónimo: los gastos se guardan en AsyncStorage
- * (@expensetracker/expenses). Hidratación asíncrona con la bandera isLoaded:
- * mientras vale false la app muestra un ActivityIndicator (ver App.js) y no se
- * escribe nada en disco, para no pisar los datos guardados con una lista vacía.
+ * Los ajustes (Notificaciones / Modo oscuro) siguen en AsyncStorage
+ * (SettingsContext).
  */
-export const EXPENSES_STORAGE_KEY = '@expensetracker/expenses';
+export const EXPENSES_COLLECTION = 'expenses';
+
+// Si Firestore tarda en responder (p. ej. sin red y sin caché), no se deja la
+// app en el spinner para siempre: pasados 4 s se muestra la UI (vacía).
+const LOAD_TIMEOUT_MS = 4000;
 
 const ExpensesContext = createContext(null);
 
-const createExpenseId = () =>
-  `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+const toISOString = (value) => {
+  if (!value) return new Date().toISOString();
+  if (typeof value.toDate === 'function') return value.toDate().toISOString();
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? new Date().toISOString() : date.toISOString();
+};
 
 export function ExpensesProvider({ children }) {
   const [expenses, setExpenses] = useState([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Hidratación: lee los gastos guardados una sola vez al montar.
   useEffect(() => {
-    let cancelled = false;
+    const expensesQuery = query(
+      collection(db, EXPENSES_COLLECTION),
+      orderBy('createdAt', 'desc')
+    );
 
-    const loadExpenses = async () => {
-      try {
-        const raw = await AsyncStorage.getItem(EXPENSES_STORAGE_KEY);
-        const stored = raw ? JSON.parse(raw) : [];
-        if (Array.isArray(stored) && !cancelled) {
-          setExpenses(
-            stored
-              .filter((item) => item && typeof item.id === 'string' && Number.isFinite(Number(item.amount)))
-              .map((item) => ({
-                id: item.id,
-                title: String(item.title ?? item.description ?? '').trim(),
-                amount: Number(item.amount),
-                category: item.category || 'Otros',
-                notes: String(item.notes ?? '').trim(),
-                createdAt: item.createdAt || item.date || new Date().toISOString(),
-              }))
-          );
+    const timeoutId = setTimeout(() => setIsLoaded(true), LOAD_TIMEOUT_MS);
+
+    const unsubscribe = onSnapshot(
+      expensesQuery,
+      { includeMetadataChanges: true },
+      (snapshot) => {
+        const items = snapshot.docs.map((document) => {
+          // 'estimate': mientras el servidor no confirma serverTimestamp(), se usa la hora local.
+          const data = document.data({ serverTimestamps: 'estimate' });
+          return {
+            id: document.id,
+            title: String(data.title ?? ''),
+            amount: Number(data.amount) || 0,
+            category: data.category || 'Otros',
+            notes: String(data.notes ?? ''),
+            createdAt: toISOString(data.createdAt),
+          };
+        });
+        setExpenses(items);
+        setIsLoaded(true);
+        if (__DEV__) {
+          console.log('[Firestore]', {
+            gastos: items.length,
+            desdeCache: snapshot.metadata.fromCache,
+            escriturasPendientes: snapshot.metadata.hasPendingWrites,
+          });
         }
-      } catch (error) {
-        console.warn('[Expenses] No se pudieron leer los gastos guardados:', error);
-      } finally {
-        if (!cancelled) setIsLoaded(true);
+      },
+      (error) => {
+        console.warn('[Firestore] Error al escuchar los gastos:', error);
+        setIsLoaded(true);
       }
-    };
+    );
 
-    loadExpenses();
     return () => {
-      cancelled = true;
+      clearTimeout(timeoutId);
+      unsubscribe();
     };
   }, []);
 
-  // Persistencia: solo después de hidratar (ver comentario de cabecera).
-  useEffect(() => {
-    if (!isLoaded) return;
-    AsyncStorage.setItem(EXPENSES_STORAGE_KEY, JSON.stringify(expenses)).catch((error) => {
-      console.warn('[Expenses] No se pudieron guardar los gastos:', error);
-    });
-  }, [expenses, isLoaded]);
-
   const addExpense = useCallback((data = {}) => {
-    const newExpense = {
-      id: data.id || createExpenseId(),
+    const payload = {
       title: String(data.title || '').trim(),
       amount: Number(data.amount),
       category: data.category || 'Otros',
       notes: String(data.notes || '').trim(),
-      createdAt: data.createdAt || new Date().toISOString(),
+      createdAt: serverTimestamp(),
     };
 
-    setExpenses((prev) => [newExpense, ...prev]);
-    return newExpense;
+    // Sin await: no bloquea el cierre del modal (offline la promesa queda pendiente).
+    addDoc(collection(db, EXPENSES_COLLECTION), payload).catch((error) => {
+      console.warn('[Firestore] No se pudo guardar el gasto:', error);
+    });
+
+    return { ...payload, createdAt: new Date().toISOString() };
   }, []);
 
   const removeExpense = useCallback((id) => {
-    setExpenses((prev) => prev.filter((item) => item.id !== id));
+    deleteDoc(doc(db, EXPENSES_COLLECTION, id)).catch((error) => {
+      console.warn('[Firestore] No se pudo eliminar el gasto:', error);
+    });
   }, []);
 
   const getExpenseById = useCallback(
