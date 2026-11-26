@@ -1,4 +1,5 @@
-import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getTheme } from '../styles/theme';
 
 /**
@@ -8,7 +9,12 @@ import { getTheme } from '../styles/theme';
  *
  * Centraliza los ajustes locales (Notificaciones y Modo oscuro) junto con el
  * tema visual activo para habilitar cambio de paleta real en toda la app.
- * En US #3 se conectará a AsyncStorage usando SETTINGS_STORAGE_KEY.
+ *
+ * US #3 (#rn-s3-us3) — Manuel / Jerónimo: los dos switches se persisten en
+ * AsyncStorage (@expensetracker/settings). AsyncStorage es asíncrono, así que
+ * se hidrata al montar y se expone la bandera isSettingsLoaded: hasta que no
+ * termina la lectura NO se guarda nada (si no, los valores por defecto
+ * pisarían lo que había guardado).
  */
 export const SETTINGS_STORAGE_KEY = '@expensetracker/settings';
 
@@ -21,7 +27,48 @@ const SettingsContext = createContext(null);
 
 export function SettingsProvider({ children }) {
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
-  const [isSettingsLoaded] = useState(true);
+  const [isSettingsLoaded, setIsSettingsLoaded] = useState(false);
+
+  // Hidratación: lee los ajustes guardados una sola vez al montar.
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadSettings = async () => {
+      try {
+        const raw = await AsyncStorage.getItem(SETTINGS_STORAGE_KEY);
+        if (raw && !cancelled) {
+          const stored = JSON.parse(raw);
+          setSettings({
+            notifications:
+              typeof stored?.notifications === 'boolean'
+                ? stored.notifications
+                : DEFAULT_SETTINGS.notifications,
+            darkMode:
+              typeof stored?.darkMode === 'boolean'
+                ? stored.darkMode
+                : DEFAULT_SETTINGS.darkMode,
+          });
+        }
+      } catch (error) {
+        console.warn('[Settings] No se pudieron leer los ajustes guardados:', error);
+      } finally {
+        if (!cancelled) setIsSettingsLoaded(true);
+      }
+    };
+
+    loadSettings();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Persistencia: solo después de hidratar (ver comentario de cabecera).
+  useEffect(() => {
+    if (!isSettingsLoaded) return;
+    AsyncStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings)).catch((error) => {
+      console.warn('[Settings] No se pudieron guardar los ajustes:', error);
+    });
+  }, [settings, isSettingsLoaded]);
 
   const setNotifications = useCallback((value) => {
     setSettings((prev) => ({

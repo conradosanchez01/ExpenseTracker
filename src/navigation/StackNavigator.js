@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import TabNavigator from './TabNavigator';
 import ExpenseDetailScreen from '../screens/ExpenseDetailScreen';
 import NewExpenseModal from '../screens/NewExpenseModal';
+import { useSettings } from '../context/SettingsContext';
 
 const Stack = createNativeStackNavigator();
 
@@ -13,8 +14,16 @@ const Stack = createNativeStackNavigator();
  * Asignado a: Jerónimo (integración de todas las vistas en US #6)
  */
 export default function StackNavigator() {
+  const { theme } = useSettings();
+
   return (
-    <Stack.Navigator>
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: theme.surface },
+        headerTintColor: theme.text,
+        contentStyle: { backgroundColor: theme.background },
+      }}
+    >
       <Stack.Screen
         name="MainTabs"
         component={TabNavigator}
@@ -28,7 +37,11 @@ export default function StackNavigator() {
       <Stack.Screen
         name="NewExpenseModal"
         component={NewExpenseModal}
-    options={{ presentation: 'transparentModal', headerShown: false }}
+        options={{
+          presentation: 'transparentModal',
+          headerShown: false,
+          contentStyle: { backgroundColor: 'transparent' },
+        }}
       />
     </Stack.Navigator>
   );

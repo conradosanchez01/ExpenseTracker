@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useSettings } from '../context/SettingsContext';
 import { formatAmount, getCategoryMeta } from '../data/categories';
 
 /**
@@ -8,20 +9,21 @@ import { formatAmount, getCategoryMeta } from '../data/categories';
  * Asignado a: Manuel
  */
 export default function ExpenseItem({ title, description, amount, category, onPress }) {
+  const { theme } = useSettings();
   const displayTitle = title || description || 'Gasto';
   const categoryMeta = getCategoryMeta(category);
 
   return (
-    <TouchableOpacity style={styles.container} onPress={onPress} activeOpacity={0.7}>
+    <TouchableOpacity style={[styles.container, { backgroundColor: theme.surface }]} onPress={onPress} activeOpacity={0.7}>
       <View style={styles.info}>
-        <Text style={styles.description}>{displayTitle}</Text>
+        <Text style={[styles.description, { color: theme.text }]}>{displayTitle}</Text>
         {category ? (
           <View style={[styles.categoryBadge, { backgroundColor: categoryMeta.backgroundColor }]}>
             <Text style={[styles.category, { color: categoryMeta.color }]}>{category}</Text>
           </View>
         ) : null}
       </View>
-      <Text style={styles.amount}>{formatAmount(amount)}</Text>
+      <Text style={[styles.amount, { color: theme.danger }]}>{formatAmount(amount)}</Text>
     </TouchableOpacity>
   );
 }
