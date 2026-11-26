@@ -1,6 +1,7 @@
 import React from 'react';
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useExpenses } from '../context/ExpensesContext';
+import { useSettings } from '../context/SettingsContext';
 import { formatAmount, formatDate, getCategoryMeta } from '../data/categories';
 
 /**
@@ -10,22 +11,23 @@ import { formatAmount, formatDate, getCategoryMeta } from '../data/categories';
  */
 export default function ExpenseDetailScreen({ route, navigation }) {
   const { getExpenseById, removeExpense } = useExpenses();
+  const { theme } = useSettings();
   const expenseId = route?.params?.id;
   const expense = expenseId ? getExpenseById(expenseId) : undefined;
 
   if (!expense) {
     return (
-      <View style={styles.container}>
-        <View style={styles.card}>
-          <Text style={styles.notFoundTitle}>Gasto no encontrado</Text>
-          <Text style={styles.notFoundText}>
+      <View style={[styles.container, { backgroundColor: theme.background }]}>
+        <View style={[styles.card, { backgroundColor: theme.surface }]}>
+          <Text style={[styles.notFoundTitle, { color: theme.text }]}>Gasto no encontrado</Text>
+          <Text style={[styles.notFoundText, { color: theme.textMuted }]}>
             No se encontró el gasto solicitado o fue eliminado.
           </Text>
           <TouchableOpacity
-            style={styles.backButton}
+            style={[styles.backButton, { backgroundColor: theme.inputBackground }]}
             onPress={() => navigation.goBack()}
           >
-            <Text style={styles.backButtonText}>Volver al listado</Text>
+            <Text style={[styles.backButtonText, { color: theme.text }]}>Volver al listado</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -57,26 +59,26 @@ export default function ExpenseDetailScreen({ route, navigation }) {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.card}>
-        <Text style={styles.label}>Título</Text>
-        <Text style={styles.value}>{displayTitle}</Text>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <View style={[styles.card, { backgroundColor: theme.surface }]}>
+        <Text style={[styles.label, { color: theme.textMuted }]}>Título</Text>
+        <Text style={[styles.value, { color: theme.text }]}>{displayTitle}</Text>
 
-        <Text style={styles.label}>Monto</Text>
-        <Text style={[styles.value, styles.amount]}>{formatAmount(expense.amount)}</Text>
+        <Text style={[styles.label, { color: theme.textMuted }]}>Monto</Text>
+        <Text style={[styles.value, styles.amount, { color: theme.danger }]}>{formatAmount(expense.amount)}</Text>
 
-        <Text style={styles.label}>Categoría</Text>
+        <Text style={[styles.label, { color: theme.textMuted }]}>Categoría</Text>
         <View style={[styles.categoryBadge, { backgroundColor: categoryMeta.backgroundColor }]}>
           <Text style={[styles.categoryText, { color: categoryMeta.color }]}>
             {expense.category || 'Sin categoría'}
           </Text>
         </View>
 
-        <Text style={styles.label}>Fecha</Text>
-        <Text style={styles.value}>{formatDate(expense.createdAt)}</Text>
+        <Text style={[styles.label, { color: theme.textMuted }]}>Fecha</Text>
+        <Text style={[styles.value, { color: theme.text }]}>{formatDate(expense.createdAt)}</Text>
 
-        <Text style={styles.label}>Notas</Text>
-        <Text style={styles.value}>{expense.notes || 'Sin notas'}</Text>
+        <Text style={[styles.label, { color: theme.textMuted }]}>Notas</Text>
+        <Text style={[styles.value, { color: theme.text }]}>{expense.notes || 'Sin notas'}</Text>
       </View>
 
       <TouchableOpacity

@@ -14,6 +14,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { useExpenses } from '../context/ExpensesContext';
+import { useSettings } from '../context/SettingsContext';
 import { CATEGORIES } from '../data/categories';
 
 /**
@@ -29,6 +30,7 @@ import { CATEGORIES } from '../data/categories';
 export default function NewExpenseModal() {
     const navigation = useNavigation();
     const { addExpense } = useExpenses();
+    const { theme } = useSettings();
 
     const [nombre, setNombre] = useState('');
     const [monto, setMonto] = useState('');
@@ -46,6 +48,12 @@ export default function NewExpenseModal() {
             useNativeDriver: true,
         }).start();
     }, [slideAnim]);
+
+    const inputThemeStyle = {
+        backgroundColor: theme.inputBackground,
+        borderColor: theme.border,
+        color: theme.text,
+    };
 
     const resetForm = () => {
         setNombre('');
@@ -96,7 +104,12 @@ export default function NewExpenseModal() {
             style={styles.mainContainer}
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
-            <Animated.View style={[styles.modalContent, { transform: [{ translateY: slideAnim }] }]}>
+            <Animated.View
+                style={[
+                    styles.modalContent,
+                    { backgroundColor: theme.surface, transform: [{ translateY: slideAnim }] },
+                ]}
+            >
                 <ScrollView
                     showsVerticalScrollIndicator={false}
                     keyboardShouldPersistTaps="handled"
@@ -104,36 +117,36 @@ export default function NewExpenseModal() {
                     <View style={styles.headerContainer}>
                         <Text style={styles.title}>Nuevo Gasto</Text>
                         <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
-                            <Ionicons name="close" size={28} color="#4B5563" />
+                            <Ionicons name="close" size={28} color={theme.textSecondary} />
                         </TouchableOpacity>
                     </View>
 
-                    <Text style={styles.label}>Nombre del gasto *</Text>
+                    <Text style={[styles.label, { color: theme.text }]}>Nombre del gasto *</Text>
                     <TextInput
                         value={nombre}
                         onChangeText={(text) => {
                             setNombre(text);
                             if (error) setError('');
                         }}
-                        style={styles.input}
+                        style={[styles.input, inputThemeStyle]}
                         placeholder="Ej. Supermercado"
                         placeholderTextColor="#9CA3AF"
                     />
 
-                    <Text style={styles.label}>Monto *</Text>
+                    <Text style={[styles.label, { color: theme.text }]}>Monto *</Text>
                     <TextInput
                         value={monto}
                         onChangeText={(text) => {
                             setMonto(text);
                             if (error) setError('');
                         }}
-                        style={styles.input}
+                        style={[styles.input, inputThemeStyle]}
                         placeholder="Ej. 1500"
                         keyboardType="decimal-pad"
                         placeholderTextColor="#9CA3AF"
                     />
 
-                    <Text style={styles.label}>Categoría *</Text>
+                    <Text style={[styles.label, { color: theme.text }]}>Categoría *</Text>
                     <View style={styles.chipsContainer}>
                         {CATEGORIES.map((cat) => {
                             const isSelected = categoria === cat.name;
@@ -142,6 +155,7 @@ export default function NewExpenseModal() {
                                     key={cat.name}
                                     style={[
                                         styles.chip,
+                                        { backgroundColor: theme.inputBackground, borderColor: theme.border },
                                         isSelected && styles.chipSelected,
                                     ]}
                                     onPress={() => {
@@ -153,6 +167,7 @@ export default function NewExpenseModal() {
                                     <Text
                                         style={[
                                             styles.chipText,
+                                            { color: theme.textSecondary },
                                             isSelected && styles.chipTextSelected,
                                         ]}
                                     >
@@ -163,11 +178,11 @@ export default function NewExpenseModal() {
                         })}
                     </View>
 
-                    <Text style={styles.label}>Notas (Opcional)</Text>
+                    <Text style={[styles.label, { color: theme.text }]}>Notas (Opcional)</Text>
                     <TextInput
                         value={descripcion}
                         onChangeText={setDescripcion}
-                        style={[styles.input, styles.textArea]}
+                        style={[styles.input, inputThemeStyle, styles.textArea]}
                         placeholder="Notas adicionales sobre el gasto"
                         placeholderTextColor="#9CA3AF"
                         multiline={true}
@@ -177,8 +192,11 @@ export default function NewExpenseModal() {
                     {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
                     <View style={styles.actionsRow}>
-                        <TouchableOpacity style={styles.cancelButton} onPress={handleClose}>
-                            <Text style={styles.cancelButtonText}>Cancelar</Text>
+                        <TouchableOpacity
+                            style={[styles.cancelButton, { backgroundColor: theme.inputBackground, borderColor: theme.border }]}
+                            onPress={handleClose}
+                        >
+                            <Text style={[styles.cancelButtonText, { color: theme.textSecondary }]}>Cancelar</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.saveButton} onPress={onHandleSave}>
                             <Text style={styles.saveButtonText}>Guardar</Text>

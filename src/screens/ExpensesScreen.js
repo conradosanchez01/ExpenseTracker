@@ -2,6 +2,7 @@ import React from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import ExpenseItem from '../components/ExpenseItem';
 import { useExpenses } from '../context/ExpensesContext';
+import { useSettings } from '../context/SettingsContext';
 import { formatAmount } from '../data/categories';
 
 /**
@@ -11,6 +12,7 @@ import { formatAmount } from '../data/categories';
  */
 export default function ExpensesScreen({ navigation }) {
   const { expenses } = useExpenses();
+  const { theme } = useSettings();
 
   const totalAmount = expenses.reduce(
     (acc, item) => acc + Number(item.amount || 0),
@@ -19,9 +21,9 @@ export default function ExpensesScreen({ navigation }) {
   const totalMovements = expenses.length;
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
       <View style={styles.headerRow}>
-        <Text style={styles.title}>Mis Gastos</Text>
+        <Text style={[styles.title, { color: theme.text }]}>Mis Gastos</Text>
         <TouchableOpacity
           style={styles.addButton}
           onPress={() => navigation.navigate('NewExpenseModal')}
@@ -31,15 +33,15 @@ export default function ExpensesScreen({ navigation }) {
       </View>
 
       <View style={styles.summaryRow}>
-        <View style={styles.summaryCard}>
-          <Text style={styles.summaryLabel}>Total registrado</Text>
-          <Text style={[styles.summaryValue, styles.summaryHighlight]}>
+        <View style={[styles.summaryCard, { backgroundColor: theme.surface }]}>
+          <Text style={[styles.summaryLabel, { color: theme.textMuted }]}>Total registrado</Text>
+          <Text style={[styles.summaryValue, { color: theme.text }, styles.summaryHighlight]}>
             {formatAmount(totalAmount)}
           </Text>
         </View>
-        <View style={styles.summaryCard}>
-          <Text style={styles.summaryLabel}>Movimientos</Text>
-          <Text style={styles.summaryValue}>{totalMovements}</Text>
+        <View style={[styles.summaryCard, { backgroundColor: theme.surface }]}>
+          <Text style={[styles.summaryLabel, { color: theme.textMuted }]}>Movimientos</Text>
+          <Text style={[styles.summaryValue, { color: theme.text }]}>{totalMovements}</Text>
         </View>
       </View>
 
@@ -55,9 +57,9 @@ export default function ExpensesScreen({ navigation }) {
           />
         )}
         ListEmptyComponent={
-          <View style={styles.emptyCard}>
-            <Text style={styles.emptyTitle}>Todavía no registraste gastos</Text>
-            <Text style={styles.emptySubtitle}>
+          <View style={[styles.emptyCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+            <Text style={[styles.emptyTitle, { color: theme.text }]}>Todavía no registraste gastos</Text>
+            <Text style={[styles.emptySubtitle, { color: theme.textMuted }]}>
               Tocá "+ Nuevo" para registrar tu primer movimiento.
             </Text>
           </View>

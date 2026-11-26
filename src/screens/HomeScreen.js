@@ -1,6 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useExpenses } from '../context/ExpensesContext';
+import { useSettings } from '../context/SettingsContext';
 import { formatAmount } from '../data/categories';
 
 /**
@@ -16,6 +17,7 @@ import { formatAmount } from '../data/categories';
  */
 const HomeScreen = ({ navigation }) => {
     const { expenses } = useExpenses();
+    const { theme } = useSettings();
     const totalAmount = expenses.reduce(
         (acc, item) => acc + Number(item.amount || 0),
         0
@@ -23,16 +25,16 @@ const HomeScreen = ({ navigation }) => {
     const totalMovements = expenses.length;
 
     return (
-        <View style={styles.mainContainer}>
+        <View style={[styles.mainContainer, { backgroundColor: theme.background }]}>
             {/* Contenedor del Título Principal */}
             <View style={styles.headerContainer}>
                 <Text style={styles.title}>ExpenseTracker</Text>
             </View>
 
             {/* Tarjeta con el contenido de bienvenida */}
-            <View style={styles.card}>
-                <Text style={styles.subtitle}>¡Bienvenido a ExpenseTracker!</Text>
-                <Text style={styles.description}>
+            <View style={[styles.card, { backgroundColor: theme.surface }]}>
+                <Text style={[styles.subtitle, { color: theme.text }]}>¡Bienvenido a ExpenseTracker!</Text>
+                <Text style={[styles.description, { color: theme.textSecondary }]}>
                     ExpenseTracker es una aplicación diseñada para ayudarte a registrar, 
                     gestionar y controlar tus gastos diarios de una manera rápida y sencilla.
                 </Text>
@@ -40,21 +42,21 @@ const HomeScreen = ({ navigation }) => {
 
             {/* Resumen conectado al Context */}
             <View style={styles.summaryRow}>
-                <View style={styles.summaryCard}>
-                    <Text style={styles.summaryLabel}>Total registrado</Text>
-                    <Text style={[styles.summaryValue, styles.summaryHighlight]}>
+                <View style={[styles.summaryCard, { backgroundColor: theme.surface }]}>
+                    <Text style={[styles.summaryLabel, { color: theme.textMuted }]}>Total registrado</Text>
+                    <Text style={[styles.summaryValue, { color: theme.text }, styles.summaryHighlight]}>
                         {formatAmount(totalAmount)}
                     </Text>
                 </View>
-                <View style={styles.summaryCard}>
-                    <Text style={styles.summaryLabel}>Movimientos</Text>
-                    <Text style={styles.summaryValue}>{totalMovements}</Text>
+                <View style={[styles.summaryCard, { backgroundColor: theme.surface }]}>
+                    <Text style={[styles.summaryLabel, { color: theme.textMuted }]}>Movimientos</Text>
+                    <Text style={[styles.summaryValue, { color: theme.text }]}>{totalMovements}</Text>
                 </View>
             </View>
 
             {totalMovements === 0 ? (
-                <View style={styles.emptyCard}>
-                    <Text style={styles.emptyText}>Todavía no registraste gastos</Text>
+                <View style={[styles.emptyCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+                    <Text style={[styles.emptyText, { color: theme.textSecondary }]}>Todavía no registraste gastos</Text>
                 </View>
             ) : null}
 
@@ -68,7 +70,7 @@ const HomeScreen = ({ navigation }) => {
                         <Text style={styles.primaryButtonText}>Registrar Nuevo Gasto</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                        style={styles.secondaryButton}
+                        style={[styles.secondaryButton, { backgroundColor: theme.surface }]}
                         onPress={() => navigation.navigate('Gastos')}
                         activeOpacity={0.85}
                     >
@@ -77,7 +79,7 @@ const HomeScreen = ({ navigation }) => {
                 </View>
             ) : null}
 
-            <StatusBar style="dark" />
+            <StatusBar style={theme.statusBarStyle} />
         </View>
     );
 };

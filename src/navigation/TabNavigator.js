@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import HomeScreen from '../screens/HomeScreen';
 import ExpensesScreen from '../screens/ExpensesScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import { useSettings } from '../context/SettingsContext';
 
 const Tab = createBottomTabNavigator();
 
@@ -14,11 +15,19 @@ const Tab = createBottomTabNavigator();
  * Asignado a: Jerónimo (integración completa e íconos en US #6 / US #7)
  */
 export default function TabNavigator() {
+  const { theme } = useSettings();
+
   return (
     <Tab.Navigator
       screenOptions={{
-        tabBarActiveTintColor: '#10B981',
-        tabBarInactiveTintColor: '#6B7280',
+        tabBarActiveTintColor: theme.primary,
+        tabBarInactiveTintColor: theme.textMuted,
+        tabBarStyle: {
+          backgroundColor: theme.tabBarBackground,
+          borderTopColor: theme.tabBarBorder,
+        },
+        headerStyle: { backgroundColor: theme.surface },
+        headerTintColor: theme.text,
       }}
     >
       <Tab.Screen
